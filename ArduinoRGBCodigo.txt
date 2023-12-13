@@ -1,0 +1,149 @@
+#include <IRremote.h>
+
+int RECV_PIN = 13;
+
+IRrecv irrecv(RECV_PIN);
+// variaveis da teclas. ex tecla 1-> t1
+long int t1 = 16753245;
+long int t2 = 16736925;
+long int t3 = 16769565;
+long int t4 = 16720605;
+long int t5 = 16712445;
+long int t6 = 16761405;
+long int t7 = 16769055;
+long int t8 = 16754775;
+long int t9 = 16748655;
+
+decode_results results;
+// Declarando as variaveis os pinos
+int green=6;
+int yellow=4;
+int red=2;
+// Para o loop
+int var;
+// Para o led RGB
+const int b = 8;
+const int g = 9;
+const int r = 10;                              ;
+
+int azul=255;
+int vermelho=0;
+int verde=22;
+
+// Criando uma função para o semafaro
+void semafaro(){
+  // Ativamos os pinos (colocando 5v nele)  
+  digitalWrite(red, HIGH);
+  digitalWrite(yellow, HIGH);
+  digitalWrite(green, HIGH);
+  	
+  // Aguardamos 1 segundo
+  delay(1000);
+
+  // Desligamos os pinos
+  digitalWrite(vermelho, LOW);
+  digitalWrite(yellow, LOW);
+  digitalWrite(green, LOW);
+  	
+  // Aguardamos 1 segundo
+  delay(1000);
+  
+  // Temos um loop para definir quantas vezes ira repetir
+  var = 0;
+  while (var < 2) {
+    // Ligamos somente o verde
+    digitalWrite(green, HIGH);
+
+    // Aguardamos 2 segundo
+    delay(2000);
+
+    // Desligamos o verde e ligamos o amarelo
+    digitalWrite(green, LOW);
+    digitalWrite(yellow, HIGH);
+
+    // Aguardamos 1 segundo
+    delay(1000);
+
+    // Ligamos o vermelho e desligamos o amarelo
+    digitalWrite(yellow, LOW);
+    digitalWrite(red, HIGH);
+
+    // Aguardamos 2 segundo e desligar o vermelho
+    delay(2000);
+    digitalWrite(red, LOW);
+    var++;
+  }
+}
+
+//funcao luz rgb piscar
+void rgb(){
+	  for (verde = 255; verde > 0; verde=verde-1){
+        analogWrite(g, verde);
+        delay(10);
+      }
+      for (vermelho = 0; vermelho < 255; vermelho=vermelho+1){
+          analogWrite(r, vermelho);
+          delay(10);
+      }
+      for (azul = 255; azul > 0; azul=azul-1){
+          analogWrite(b, azul);
+          delay(10);
+      }
+  
+      for (verde = 0; verde <255; verde=verde+1){
+          analogWrite(g, verde);
+          delay(10);
+      }
+      for (vermelho = 255; vermelho > 0; vermelho=vermelho-1){
+          analogWrite(r, vermelho);
+          delay(10);
+      }
+      for (azul = 0; azul < 255; azul=azul+1){
+          analogWrite(b, azul);
+          delay(10);
+      }
+}
+
+// Preparação do Arduino, este código irá rodar uma única vez
+void setup() 
+{
+  Serial.begin(9600);
+  // In case the interrupt driver crashes on setup, give a clue
+  // to the user what's going on.
+  Serial.println("Enabling IRin");
+  irrecv.enableIRIn(); // Start the receiver
+  Serial.println("Enabled IRin");
+  
+  // Colocamos os pinos 2, 4, 6 do Arduino como OUTPUT (saída)
+  pinMode(red, OUTPUT);
+  pinMode(yellow, OUTPUT);
+  pinMode(green, OUTPUT);
+  // Iremos definir as cores do r, g, b
+  pinMode(b, OUTPUT);
+  pinMode(g, OUTPUT);
+  pinMode(r, OUTPUT);
+  // Agora passamos o paramento para o analogico 
+  analogWrite(r, vermelho);
+  analogWrite(g, verde);
+  analogWrite(b, azul);
+}
+
+// Este código é chamado automáticamente pelo Arduino, ficará em
+// loop até que seu Arduino seja desligado
+void loop() 
+{
+  //aqui teremos um if, para sabe qual tecla e executar ua função
+  if(irrecv.decode(&results)){
+    if(results.value==t1){
+      rgb();
+    }
+    
+    if(results.value==t2){
+      semafaro();
+    }
+  irrecv.resume();//buscar nova tecla apertada
+  }
+  delay(100);//espera 10 milissigundos
+
+  // Este código irá se repetir eternamente
+}
